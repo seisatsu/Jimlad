@@ -9,11 +9,12 @@
 require 'discordrb'
 require 'marky_markov'
 
+bot_token = File.read("token.cfg").chomp # Loads bot token from token.cfg
 markov = MarkyMarkov::Dictionary.new('dictionary') # Saves/opens dictionary.mmd
 
 # Here we instantiate a `CommandBot` instead of a regular `Bot`, which has the functionality to add commands using the
 # `command` method. We have to set a `prefix` here, which will be the character that triggers command execution.
-bot = Discordrb::Commands::CommandBot.new token: 'NjkzODg4NDI5MzY0MzQ2OTky.XoDn9Q.HGvvkZxO5QejZ1rmRqFNtd40Eg4', prefix: '!'
+bot = Discordrb::Commands::CommandBot.new token: bot_token, prefix: '!'
 
 # The `mention` event is called if the bot is *directly mentioned*, i.e. not using a role mention or @everyone/@here.
 # For now, spit out 10 words when mentioned.
