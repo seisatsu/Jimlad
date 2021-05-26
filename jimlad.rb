@@ -10,7 +10,14 @@ require 'discordrb'
 require 'marky_markov'
 
 bot_token = File.read("token.cfg").chomp # Loads bot token from token.cfg
+
+# Load the dictionary.
+print "Loading chains... "
+start = Time.now
 markov = MarkyMarkov::Dictionary.new('dictionary') # Saves/opens dictionary.mmd
+finish = Time.now
+diff = finish - start
+puts "Done in #{diff} seconds."
 
 # Here we instantiate a `CommandBot` instead of a regular `Bot`, which has the functionality to add commands using the
 # `command` method. We have to set a `prefix` here, which will be the character that triggers command execution.
