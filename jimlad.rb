@@ -8,8 +8,9 @@
 
 require 'discordrb'
 require 'marky_markov'
+require 'json'
 
-bot_token = File.read("token.cfg").chomp # Loads bot token from token.cfg
+config = JSON.parse(File.read("jimlad.cfg")) # Loads the main configuration file
 
 # Load the dictionary.
 print "Loading chains... "
@@ -19,15 +20,21 @@ finish = Time.now
 diff = finish - start
 puts "Done in #{diff} seconds."
 
+# Make backups, because sometimes we lose the dictionary if we exit uncleanly.
+if(File.exist?("dictionary.mmd.bk"))
+  FileUtils.cp("dictionary.mmd.bk", "dictionary.mmd.bk2")
+end
+FileUtils.cp("dictionary.mmd", "dictionary.mmd.bk")
+
 # Here we instantiate a `CommandBot` instead of a regular `Bot`, which has the functionality to add commands using the
 # `command` method. We have to set a `prefix` here, which will be the character that triggers command execution.
-bot = Discordrb::Commands::CommandBot.new token: bot_token, prefix: '!'
+bot = Discordrb::Commands::CommandBot.new token: config["token"], prefix: '!'
 
 # The `mention` event is called if the bot is *directly mentioned*, i.e. not using a role mention or @everyone/@here.
-# For now, spit out 10 words when mentioned.
 bot.mention do |event|
-  event.respond(markov.generate_n_words 10)
-  puts markov.generate_n_words 10
+  response = markov.generate_n_words rand(config["min"]..config["max"])
+  event.respond(response)
+  puts response
 end
 
 # Save every message into the dictionary, and also print it to the console.
