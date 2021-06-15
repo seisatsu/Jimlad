@@ -131,15 +131,23 @@ end
 # The `mention` event is called if the bot is *directly mentioned*, i.e. not using a role mention or @everyone/@here.
 bot.mention do |event|
   response = markov.generate_n_words(rand(config["min"]..config["max"]))
-  event.respond(response)
-  puts response
+  if not config["wordfilter"].any? { |word| response.include?(word) }
+    event.respond(response)
+    puts response
+  else
+    puts "[[WORDFILTER TRIGGERED]]"
+  end
 end
 
 # Save every message into the dictionary, and also print it to the console.
 bot.message do |event|
-  markov.parse_string(event.message.content)
-  puts event.message.content
-  markov.save_dictionary!
+  if not config["wordfilter"].any? { |word| event.message.content.include?(word) }
+    markov.parse_string(event.message.content)
+    puts event.message.content
+    markov.save_dictionary!
+  else
+    puts "[[WORDFILTER TRIGGERED]]"
+  end
 end
 
 bot.run
