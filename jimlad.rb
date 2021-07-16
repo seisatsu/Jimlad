@@ -93,7 +93,7 @@ bot = Discordrb::Commands::CommandBot.new token: config["token"], prefix: '!'
 
 # Set minimum character count.
 bot.command :min do |_event, *args|
-  break unless _event.user.id == config["admin"]
+  break unless _event.user.id.in?(config["admin"])
   number = number_or_nil(args.join(' '))
   if number
     config["min"] = number
@@ -108,7 +108,7 @@ end
 
 # Set maximum character count.
 bot.command :max do |_event, *args|
-  break unless _event.user.id == config["admin"]
+  break unless _event.user.id.in?(config["admin"])
   number = number_or_nil(args.join(' '))
   if number
     config["max"] = number
@@ -123,7 +123,7 @@ end
 
 # Quit.
 bot.command :quit do |event|
-  break unless event.user.id == config["admin"]
+  break unless event.user.id.in?(config["admin"])
   bot.send_message(event.channel.id, '[[SHUTTING DOWN]]')
   exit
 end
@@ -141,12 +141,14 @@ end
 
 # Save every message into the dictionary, and also print it to the console.
 bot.message do |event|
-  if not config["wordfilter"].any? { |word| event.message.content.include?(word) }
-    markov.parse_string(event.message.content)
-    puts event.message.content
-    markov.save_dictionary!
-  else
-    puts "[[WORDFILTER TRIGGERED]]"
+  if event.channel.type != 1
+    if not config["wordfilter"].any? { |word| event.message.content.include?(word) }
+      markov.parse_string(event.message.content)
+      puts event.message.content
+      markov.save_dictionary!
+    else
+      puts "[[WORDFILTER TRIGGERED]]"
+    end
   end
 end
 
